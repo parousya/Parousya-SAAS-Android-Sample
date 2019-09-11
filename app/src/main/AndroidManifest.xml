@@ -34,9 +34,6 @@
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.NoActionBar" />
 
-        <meta-data
-                android:name="net.hockeyapp.android.appIdentifier"
-                android:value="${HOCKEYAPP_APP_ID}" />
         <service
                 android:name=".AppMessagingService"
                 android:exported="false">

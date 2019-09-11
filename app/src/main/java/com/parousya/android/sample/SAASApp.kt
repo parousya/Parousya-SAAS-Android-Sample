@@ -1,7 +1,6 @@
 package com.parousya.android.sample
 
 import android.app.Application
-import android.support.multidex.MultiDex
 import com.parousya.android.sdk.ParousyaSAASSDK
 import com.parousya.android.sdk.api.model.Variant
 
@@ -14,8 +13,6 @@ class SAASApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        MultiDex.install(this)
-
         ParousyaSAASSDK.init(
             this.applicationContext,
             BuildConfig.SAMPLE_CLIENT_ID,

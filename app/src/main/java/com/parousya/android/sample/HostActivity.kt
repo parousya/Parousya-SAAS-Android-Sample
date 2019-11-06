@@ -7,12 +7,10 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import com.parousya.android.sample.common.*
 import com.parousya.android.sdk.*
 import com.parousya.android.sdk.events.ZonePairingRequestNotification
 import com.parousya.android.sdk.exceptions.SAASException
-import com.parousya.android.sdk.fcm.SAASNotificationsManager
 import com.parousya.android.sdk.model.SessionDetails
 import com.parousya.android.sdk.model.UserDetails
 import kotlinx.android.synthetic.main.activity_host.*
@@ -55,10 +53,7 @@ class HostActivity : BaseActivity() {
 
                 override fun onError(error: SAASException) {
                     hideLoading()
-                    Snackbar.make(container, error.localizedMessage, Snackbar.LENGTH_SHORT).show()
                     pref.edit().clear().apply()
-                    startActivity(Intent(this@HostActivity, HomeActivity::class.java))
-                    finish()
                 }
             })
         }
@@ -67,9 +62,9 @@ class HostActivity : BaseActivity() {
             PRSHost.getInstance().cancelCurrentSession()
         }
 
-        if (intent != null && intent.hasExtra(SAASNotificationsManager.NOTIFICATION_PAYLOAD_EXTRA)) {
-            Log.e("HostActivity", "hasExtra: ${SAASNotificationsManager.NOTIFICATION_PAYLOAD_EXTRA}")
-            val notificationData = intent.getParcelableExtra(SAASNotificationsManager.NOTIFICATION_PAYLOAD_EXTRA) as Parcelable
+        if (intent != null && intent.hasExtra(AppMessagingService.NOTIFICATION_PAYLOAD_EXTRA)) {
+            Log.e("HostActivity", "hasExtra: ${AppMessagingService.NOTIFICATION_PAYLOAD_EXTRA}")
+            val notificationData = intent.getParcelableExtra(AppMessagingService.NOTIFICATION_PAYLOAD_EXTRA) as Parcelable
             if (notificationData is ZonePairingRequestNotification) {
                 Log.e("HostActivity", "showPairingRequest: ${notificationData.pairingId}")
                 showPairingRequest(notificationData.beaconUUID, notificationData.pairingId)
@@ -109,13 +104,15 @@ class HostActivity : BaseActivity() {
 
     private fun showPairingRequest(beaconUUID: String, pairingId: Long) {
         AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setTitle("Pairing request")
-                .setMessage("${pairingId}")
-                .setNeutralButton("Accept") { p0, p1 ->
-                    p0.dismiss()
-                    PRSHost.getInstance().acceptPairingRequest(beaconUUID = beaconUUID, pairingId = pairingId)
-                }.show()
+            .setCancelable(false)
+            .setTitle("Pairing request")
+            .setMessage("${pairingId}")
+            .setNeutralButton("Accept") { p0, p1 ->
+                p0.dismiss()
+
+                PRSHost.getInstance().acceptPairingRequest(beaconUUID = beaconUUID, pairingId = pairingId)
+
+            }.show()
     }
 
     private val prsEventListener = object : PRSEventListener {
@@ -157,8 +154,10 @@ class HostActivity : BaseActivity() {
                     }
                     updateCurrentSessionDetailsFromEvent(prsEvent.name, data, sessionStartedObject)
                 }
-                PRSEvent.SESSION_ENDED_BY_HOST, PRSEvent.SESSION_ENDED_BY_CUSTOMER,
-                PRSEvent.SESSION_ENDED_MANUALLY, PRSEvent.ALL_SESSIONS_ENDED_MANUALLY,
+                PRSEvent.SESSION_ENDED_BY_HOST,
+                PRSEvent.SESSION_ENDED_BY_CUSTOMER,
+                PRSEvent.SESSION_ENDED_MANUALLY,
+                PRSEvent.ALL_SESSIONS_ENDED_MANUALLY,
                 PRSEvent.SESSION_ENDED_DUE_TO_RANGE -> {
                     var sessionEndedObject: SessionDetails? = null
                     (data.getParcelableArray(ParousyaSAASSDK.BROADCAST_DATA) as Array<SessionDetails>?)?.let {
@@ -186,7 +185,7 @@ class HostActivity : BaseActivity() {
                 PRSEvent.SESSION_END_ERROR, PRSEvent.SESSION_NOT_FOUND -> {
                     timer.cancel()
                     btnEndSession.visibility = View.GONE
-                    statusItemAdapter.addItem(Status(System.currentTimeMillis(), prsEvent.name))
+                    statusItemAdapter.addItem(Status(System.currentTimeMillis(), prsEvent.name + ": " + data.getString(ParousyaSAASSDK.BROADCAST_MESSAGE)))
                 }
                 PRSEvent.SESSION_START_FAILED -> {
                     statusItemAdapter.addItem(Status(System.currentTimeMillis(), prsEvent.name + ": " + data.getString(ParousyaSAASSDK.BROADCAST_MESSAGE)))

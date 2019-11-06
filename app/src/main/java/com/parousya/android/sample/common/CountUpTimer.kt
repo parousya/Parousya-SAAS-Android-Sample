@@ -1,6 +1,7 @@
 package com.parousya.android.sample.common
 
 import android.os.CountDownTimer
+import kotlin.math.abs
 
 
 /**
@@ -13,7 +14,7 @@ abstract class CountUpTimer constructor(private val duration: Long, private val 
     abstract fun onTicky(second: Long)
 
     override fun onTick(millisUntilFinished: Long) {
-        val second = ((duration - millisUntilFinished) / 1000) + initValue
+        val second = abs((duration - millisUntilFinished) / 1000) + abs(initValue)
         onTicky(second)
     }
 

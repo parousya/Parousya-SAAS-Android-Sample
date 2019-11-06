@@ -4,23 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import com.parousya.android.sample.common.*
 import com.parousya.android.sdk.*
 import com.parousya.android.sdk.exceptions.SAASException
 import com.parousya.android.sdk.model.SessionDetails
 import com.parousya.android.sdk.model.UserDetails
 import kotlinx.android.synthetic.main.activity_client.*
-import kotlinx.android.synthetic.main.activity_client.bt_sign_out
-import kotlinx.android.synthetic.main.activity_client.rvStatus
-import kotlinx.android.synthetic.main.activity_client.toolbar
-import kotlinx.android.synthetic.main.activity_client.tvEndInfo
-import kotlinx.android.synthetic.main.activity_client.tvStartInfo
-import kotlinx.android.synthetic.main.activity_client.tvTimeInfo
-import kotlinx.android.synthetic.main.activity_client.tv_ranged_beacons
-import kotlinx.android.synthetic.main.activity_client.tv_tag
-import kotlinx.android.synthetic.main.activity_client.tv_ver
-import kotlinx.android.synthetic.main.activity_client.viewSessionInfo
 import java.util.*
 
 class ClientActivity : BaseActivity() {
@@ -57,10 +46,10 @@ class ClientActivity : BaseActivity() {
 
                 override fun onError(error: SAASException) {
                     hideLoading()
-                    Snackbar.make(container, error.localizedMessage, Snackbar.LENGTH_SHORT).show()
                     pref.edit().clear().apply()
                     startActivity(Intent(this@ClientActivity, HomeActivity::class.java))
                     finish()
+                    error.printStackTrace()
                 }
             })
         }

@@ -8,7 +8,7 @@ Parousya SAAS SDK is a framework for Parousya ACIS integration.  This repository
 Parousya SAAS SDK is distributed as a compiled bundle, and can be easily integrated into a new app or an existing codebase with standard tooling.
 
 ```ruby
-implementation 'com.parousya.saas:sdk:0.0.8'
+implementation 'com.parousya.saas:sdk:0.1.1'
 ```
 
 ### Requirements

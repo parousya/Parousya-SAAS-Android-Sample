@@ -88,8 +88,7 @@ class HomeActivity : AppCompatActivity() {
                     .setOnClickListener {
                         val userId: String = text_user_id.text.toString()
                         showLoading()
-                        PRSHost.getInstance().signIn(this, userId, "password",
-                            object : PRSCallback<UserDetails> {
+                        PRSHost.getInstance().signIn(this, userId, object : PRSCallback<UserDetails> {
                                 override
                                 fun onSuccess(result: UserDetails) {
                                     hideLoading()

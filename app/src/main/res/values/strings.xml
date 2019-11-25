@@ -3,4 +3,6 @@
     <string name="title_activity_host">HostActivity</string>
     <string name="lbl_version">Ver %s (%d)</string>
 
+    <string name="prs_scanning_message">Ranging for beacons</string>
+    <string name="prs_scanning_channel">ParousyaSAASSDK All Notifications</string>
 </resources>

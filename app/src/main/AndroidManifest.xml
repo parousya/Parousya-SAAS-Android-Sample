@@ -41,6 +41,15 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <meta-data
+                android:name="com.parousya.android.sdk.scanning_message"
+                android:value="@string/prs_scanning_message" />
+
+        <meta-data
+                android:name="com.parousya.android.sdk.scanning_channel"
+                android:value="@string/prs_scanning_channel" />
+
     </application>
 
 </manifest>

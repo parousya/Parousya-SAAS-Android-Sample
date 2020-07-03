@@ -8,7 +8,16 @@ Parousya SAAS SDK is a framework for Parousya ACIS integration.  This repository
 Parousya SAAS SDK is distributed as a compiled bundle, and can be easily integrated into a new app or an existing codebase with standard tooling.
 
 ```ruby
-implementation 'com.parousya.saas:sdk:0.1.1'
+allprojects {
+    repositories {
+        ...
+        maven { url "https://raw.githubusercontent.com/parousya/Parousya-SAAS-Android-SDK/master/" }
+    }
+}
+
+dependencies {
+    implementation 'com.parousya.saas:sdk:0.1.2'
+}
 ```
 
 ### Requirements
@@ -20,14 +29,14 @@ To initialize Parousya SAAS SDK, you will need to obtain the `CLIENT_ID` and `CL
 
 `this` which is the first parameter is the application context.
 
-You will need to choose between `Variant.TESTING` and `Variant.PRODUCTION` depending on the environment to use. Please use `Variant.TESTING` for non production app.
+You will need to choose between `Variant.UAT` and `Variant.PRODUCTION` depending on the environment to use. Please use `Variant.UAT` for non production app.
 
 ```kotlin
 class SAASApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        ParousyaSAASSDK.init(this, CLIENT_ID, CLIENT_SECRET, Variant.TESTING)
+        ParousyaSAASSDK.init(this, CLIENT_ID, CLIENT_SECRET, Variant.UAT)
     }
 }
 ```
@@ -40,19 +49,19 @@ You will have 2 choice in starting Parousya SAAS client:
 `this` is the activity object where the call is made.
 
 ```kotlin
-   PRSHost.getInstance().signIn(this, userId, "",
-                                        object : PRSCallback<UserDetails> {
-                                            override
-                                            fun onSuccess(result: UserDetails) {
-                                                // Sign In Successful
-                                            }
-
-                                            override
-                                            fun onError(error: SAASException) {
-                                                // Sign In Failed
-                                            }
+PRSHost.getInstance().signIn(this, userId,
+                                    object : PRSCallback<UserDetails> {
+                                        override
+                                        fun onSuccess(result: UserDetails) {
+                                            // Sign In Successful
                                         }
-                                )
+
+                                        override
+                                        fun onError(error: SAASException) {
+                                            // Sign In Failed
+                                        }
+                                    }
+                            )
 ```
 You will need to register for the broadcast events that you want to receive from the SDK.
 
@@ -172,7 +181,22 @@ PRSCustomer.getInstance().signOut(this, object : PRSCallback<Boolean> {
 ## Push Notification
 Please implement the the following method for [push notifications](https://firebase.google.com/docs/cloud-messaging/android/client "push notifications").  Parousya SAAS SDK will only handle push notifications that comes for the SDK ignoring the rest. Any payload received that contains the `parousya` key should be sent to the SDK for handling.
 
+`AndroidManifest.xml`
 ```kotlin
+<service
+    android:name=".AppMessagingService"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+    </intent-filter>
+</service>
+```
+
+FirebaseMessagingService implemetation:
+```kotlin
+import com.google.firebase.messaging.FirebaseMessagingService
+import com.google.firebase.messaging.RemoteMessage
+
 class AppMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String?) {
@@ -193,4 +217,16 @@ class AppMessagingService : FirebaseMessagingService() {
         })
     }
 }
+```
+
+## Location permissions
+In order for SDK to work, you need to grant your app a location permission. You can ask your user for the permission by yourself, or use our `permissionsWizard`:
+```kotlin
+ParousyaSAASSDK.getInstance().permissionsWizard(activity,
+    Manifest.permission.ACCESS_FINE_LOCATION,
+    Manifest.permission.ACCESS_COARSE_LOCATION,
+    onSuccess = {
+    },
+    onError = {
+    })
 ```

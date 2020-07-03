@@ -17,7 +17,7 @@ class SAASApp : Application() {
             this.applicationContext,
             BuildConfig.SAMPLE_CLIENT_ID,
             BuildConfig.SAMPLE_CLIENT_SECRET,
-            Variant.TESTING
+            Variant.UAT
         )
     }
 }

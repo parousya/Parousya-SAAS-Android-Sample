@@ -18,7 +18,7 @@ android {
         alpha {
             dimension "tier"
             applicationId "com.buuuk.saas.sample"
-            versionCode 38
+            versionCode 39
             versionName "1.0"
             buildConfigField("String", "SAMPLE_CLIENT_ID", "\"YOUR_SAMPLE_CLIENT_ID\"")
             buildConfigField("String", "SAMPLE_CLIENT_SECRET", "\"YOUR_SAMPLE_CLIENT_SECRET\"")

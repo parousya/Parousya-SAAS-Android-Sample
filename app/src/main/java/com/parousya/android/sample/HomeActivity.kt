@@ -1,15 +1,17 @@
 package com.parousya.android.sample
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Looper
 import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.location.*
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.iid.FirebaseInstanceId
@@ -30,9 +32,15 @@ class HomeActivity : AppCompatActivity() {
 
     val pref: SharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        getLocationUpdates()
 
         text_user_id.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -66,8 +74,7 @@ class HomeActivity : AppCompatActivity() {
             else -> {
                 findViewById<Button>(R.id.bt_client_login)
                     .setOnClickListener {
-                        ParousyaSAASSDK.getInstance().permissionsWizard(
-                            this,
+                        ParousyaSAASSDK.getInstance().permissionsWizard(this,
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             onSuccess = {
@@ -78,80 +85,52 @@ class HomeActivity : AppCompatActivity() {
                                         override
                                         fun onSuccess(result: String) {
                                             hideLoading()
-                                            pref.edit()
-                                                .putBoolean(
-                                                    Constants.KEY_IS_CUSTOMER_LOGGED_IN,
-                                                    true
-                                                )
-                                                .apply()
+                                            pref.edit().putBoolean(Constants.KEY_IS_CUSTOMER_LOGGED_IN, true).apply()
 
-                                            startActivity(
-                                                Intent(
-                                                    this@HomeActivity,
-                                                    ClientActivity::class.java
-                                                )
-                                            )
+                                            startActivity(Intent(this@HomeActivity, ClientActivity::class.java))
                                             finish()
                                         }
 
                                         override
                                         fun onError(error: SAASException) {
                                             hideLoading()
-                                            Snackbar.make(
-                                                container,
-                                                error.localizedMessage,
-                                                Snackbar.LENGTH_SHORT
-                                            ).show()
+                                            Snackbar.make(container, error.localizedMessage, Snackbar.LENGTH_SHORT).show()
                                         }
                                     }
                                 )
-                            },
-                            onError = {
-                                Log.e("HomeActivity", it.localizedMessage)
+                            }, onError = { error ->
+                                Snackbar.make(container, error.localizedMessage, Snackbar.LENGTH_SHORT).show()
                             })
                     }
 
                 findViewById<Button>(R.id.bt_host_login)
                     .setOnClickListener {
-                        ParousyaSAASSDK.getInstance().permissionsWizard(
-                            this,
+                        ParousyaSAASSDK.getInstance().permissionsWizard(this,
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             onSuccess = {
                                 val userId: String = text_user_id.text.toString()
                                 showLoading()
-                                PRSHost.getInstance()
-                                    .signIn(this, userId, object : PRSCallback<UserDetails> {
+                                PRSHost.getInstance().signIn(this, userId,
+                                    object : PRSCallback<UserDetails> {
                                         override
                                         fun onSuccess(result: UserDetails) {
                                             hideLoading()
-                                            pref.edit()
-                                                .putBoolean(Constants.KEY_IS_HOST_LOGGED_IN, true)
-                                                .apply()
+                                            pref.edit().putBoolean(Constants.KEY_IS_HOST_LOGGED_IN, true).apply()
 
-                                            startActivity(
-                                                Intent(
-                                                    this@HomeActivity,
-                                                    HostActivity::class.java
-                                                )
-                                            )
+                                            startActivity(Intent(this@HomeActivity, HostActivity::class.java))
                                             finish()
                                         }
 
                                         override
                                         fun onError(error: SAASException) {
                                             hideLoading()
-                                            Snackbar.make(
-                                                container,
-                                                error.localizedMessage,
-                                                Snackbar.LENGTH_SHORT
-                                            ).show()
+                                            Snackbar.make(container, error.localizedMessage, Snackbar.LENGTH_SHORT).show()
                                         }
                                     }
-                                    )
-                            },
-                            onError = {
-                                Log.e("HomeActivity", it.localizedMessage)
+                                )
+                            }, onError = { error ->
+                                Snackbar.make(container, error.localizedMessage, Snackbar.LENGTH_SHORT).show()
                             })
                     }
             }
@@ -168,4 +147,57 @@ class HomeActivity : AppCompatActivity() {
                 }
             })
     }
+
+    override fun onResume() {
+        super.onResume()
+        startLocationUpdates()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
+
+    private fun getLocationUpdates() {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        locationRequest = LocationRequest()
+        locationRequest.interval = 50000
+        locationRequest.fastestInterval = 50000
+        locationRequest.smallestDisplacement = 170f // 170 m = 0.1 mile
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+
+                if (locationResult.locations.isNotEmpty()) {
+                    val location = locationResult.lastLocation
+                    println("lastLocation: ${location}")
+                } else {
+                    println("lastLocation not available")
+                }
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun startLocationUpdates() {
+        ParousyaSAASSDK.getInstance().permissionsWizard(this,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            onSuccess = {
+                fusedLocationProviderClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.myLooper()
+                )
+
+            }, onError = { error ->
+                Snackbar.make(container, error.localizedMessage, Snackbar.LENGTH_SHORT).show()
+            })
+    }
+
+    private fun stopLocationUpdates() {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+    }
+
 }

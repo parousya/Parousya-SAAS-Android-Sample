@@ -16,7 +16,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.parousya.saas:sdk:0.1.2'
+    implementation 'com.parousya.saas:sdk:0.1.3'
 }
 ```
 

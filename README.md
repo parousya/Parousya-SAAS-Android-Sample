@@ -16,13 +16,13 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.parousya.saas:sdk:0.1.4'
+    implementation 'com.parousya.saas:sdk:0.1.5'
 }
 ```
 
 ### Requirements
 
-The Android SDK requires Android API Level >= 21. The Android SDK version requirements for each release are tightly coupled.
+The Android SDK requires Android API Level >= 24. The Android SDK version requirements for each release are tightly coupled.
 
 ## Initializing
 To initialize Parousya SAAS SDK, you will need to obtain the `CLIENT_ID` and `CLIENT_SECRET` values from Parousya. Please [contact us](https://www.parousya.com/contact) for access.
@@ -199,10 +199,8 @@ import com.google.firebase.messaging.RemoteMessage
 
 class AppMessagingService : FirebaseMessagingService() {
 
-    override fun onNewToken(token: String?) {
-        token?.let {
-            ParousyaSAASSDK.getInstance().registerPushToken(it)
-        }
+    override fun onNewToken(token: String) {
+        ParousyaSAASSDK.getInstance().registerPushToken(token)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

@@ -36,10 +36,8 @@ class AppMessagingService : FirebaseMessagingService() {
 
     private val CHANNEL_ID = "PSAAS Channel Id"
 
-    override fun onNewToken(token: String?) {
-        token?.let {
-            ParousyaSAASSDK.getInstance().registerPushToken(it)
-        }
+    override fun onNewToken(token: String) {
+        ParousyaSAASSDK.getInstance().registerPushToken(token)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -71,20 +69,26 @@ class AppMessagingService : FirebaseMessagingService() {
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
-                        val extraData = ZonePairingRequestNotification(beaconUUID = beaconUUID,
-                            pairingId = it.getLong(SAASNotificationsManager.SERVER_PAYLOAD_PAIRING_ID))
+                        val extraData = ZonePairingRequestNotification(
+                            beaconUUID = beaconUUID,
+                            pairingId = it.getLong(SAASNotificationsManager.SERVER_PAYLOAD_PAIRING_ID)
+                        )
                         putExtra(NOTIFICATION_PAYLOAD_EXTRA, extraData)
                     }
                     SAASNotificationsManager.TYPE_SESSION_STARTED -> {
-                        val sessionId = it.getString(SAASNotificationsManager.SERVER_PAYLOAD_SESSION_ID)
-                        val extraData = SessionStartedNotification(sessionId = sessionId,
+                        val sessionId =
+                            it.getString(SAASNotificationsManager.SERVER_PAYLOAD_SESSION_ID, "")
+                        val extraData = SessionStartedNotification(
+                            sessionId = sessionId,
                             data = SessionDetails(id = sessionId, beaconUuid = "")
                         )
                         putExtra(NOTIFICATION_PAYLOAD_EXTRA, extraData)
                     }
                     SAASNotificationsManager.TYPE_SESSION_ENDED -> {
-                        val sessionId = it.getString(SAASNotificationsManager.SERVER_PAYLOAD_SESSION_ID)
-                        val extraData = SessionStoppedNotification(sessionId = sessionId,
+                        val sessionId =
+                            it.getString(SAASNotificationsManager.SERVER_PAYLOAD_SESSION_ID, "")
+                        val extraData = SessionStoppedNotification(
+                            sessionId = sessionId,
                             data = SessionDetails(id = sessionId, beaconUuid = "")
                         )
                         putExtra(NOTIFICATION_PAYLOAD_EXTRA, extraData)
@@ -98,20 +102,27 @@ class AppMessagingService : FirebaseMessagingService() {
 
         var contentIntent: PendingIntent? = null
         if (intent != null)
-            contentIntent = PendingIntent.getActivity(context.applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            contentIntent = PendingIntent.getActivity(
+                context.applicationContext,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
 
         val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val notificationBuilder: NotificationCompat.Builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle(context.resources.getString(R.string.app_name))
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentText(notificationData.message)
-            .setStyle(
-                NotificationCompat.BigTextStyle() // make notification expandable
-                    .bigText(notificationData.message))
-            .setAutoCancel(true)
-            .setContentIntent(contentIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setSound(defaultSoundUri)
+        val notificationBuilder: NotificationCompat.Builder =
+            NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContentTitle(context.resources.getString(R.string.app_name))
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentText(notificationData.message)
+                .setStyle(
+                    NotificationCompat.BigTextStyle() // make notification expandable
+                        .bigText(notificationData.message)
+                )
+                .setAutoCancel(true)
+                .setContentIntent(contentIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSound(defaultSoundUri)
 
         val notificationManager: NotificationManagerCompat =
             NotificationManagerCompat.from(context.applicationContext)
@@ -131,7 +142,8 @@ class AppMessagingService : FirebaseMessagingService() {
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .build()
 
-            val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val defaultSoundUri: Uri =
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
             channel.description = description
             channel.enableVibration(true)

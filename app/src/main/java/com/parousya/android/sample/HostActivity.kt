@@ -64,13 +64,15 @@ class HostActivity : BaseActivity() {
 
         if (intent != null && intent.hasExtra(AppMessagingService.NOTIFICATION_PAYLOAD_EXTRA)) {
             Log.e("HostActivity", "hasExtra: ${AppMessagingService.NOTIFICATION_PAYLOAD_EXTRA}")
-            val notificationData = intent.getParcelableExtra(AppMessagingService.NOTIFICATION_PAYLOAD_EXTRA) as Parcelable
-            if (notificationData is ZonePairingRequestNotification) {
-                Log.e("HostActivity", "showPairingRequest: ${notificationData.pairingId}")
-                showPairingRequest(notificationData.beaconUUID, notificationData.pairingId)
+            try {
+                val notificationData = intent.getParcelableExtra<ZonePairingRequestNotification>(AppMessagingService.NOTIFICATION_PAYLOAD_EXTRA) as Parcelable
+                if (notificationData is ZonePairingRequestNotification) {
+                    Log.e("HostActivity", "showPairingRequest: ${notificationData.pairingId}")
+                    showPairingRequest(notificationData.beaconUUID, notificationData.pairingId)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } else {
-
         }
     }
 

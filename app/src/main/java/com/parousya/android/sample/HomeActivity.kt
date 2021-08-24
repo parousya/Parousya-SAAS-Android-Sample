@@ -13,8 +13,9 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import com.parousya.android.sample.BuildConfig.SAMPLE_CLIENT_ID
 import com.parousya.android.sample.common.Constants
 import com.parousya.android.sample.common.hideLoading
@@ -136,16 +137,16 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        FirebaseInstanceId.getInstance().instanceId
-            .addOnCompleteListener(OnCompleteListener { task ->
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(object: OnCompleteListener<String> {
+            override fun onComplete(task: Task<String>) {
                 if (!task.isSuccessful) {
-                    return@OnCompleteListener
+                    return
                 }
-                // Get new Instance ID token
-                task.result?.token?.let { token ->
-                    ParousyaSAASSDK.getInstance().registerPushToken(token)
+                task.result?.let {
+                    ParousyaSAASSDK.getInstance().registerPushToken(it)
                 }
-            })
+            }
+        })
     }
 
     override fun onResume() {

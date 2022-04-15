@@ -22,6 +22,8 @@ class ClientActivity : BaseActivity() {
         }
     }
 
+    override fun containerView(): View  = container
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_client)

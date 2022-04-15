@@ -30,6 +30,8 @@ class HostActivity : BaseActivity() {
 
     var activeSessions: ArrayList<SessionDetails> = arrayListOf()
 
+    override fun containerView(): View = container
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_host)

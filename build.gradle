@@ -1,11 +1,12 @@
 buildscript {
     ext.kotlin_version = '1.5.21'
     repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
         google()
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.1.3"
+        classpath 'com.android.tools.build:gradle:7.1.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.10'
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
@@ -15,6 +16,9 @@ buildscript {
 allprojects {
     repositories {
         google()
+        maven {
+            url "https://estimote.jfrog.io/artifactory/android-proximity-sdk"
+        }
         jcenter()
     }
 }

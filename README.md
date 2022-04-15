@@ -11,12 +11,21 @@ Parousya SAAS SDK is distributed as a compiled bundle, and can be easily integra
 buildscript {
     repositories {
         ...
+        maven { url "https://plugins.gradle.org/m2/" }
         mavenCentral()
     }
 }
 
+allprojects {
+    repositories {
+        maven {
+            url "https://estimote.jfrog.io/artifactory/android-proximity-sdk"
+        }
+    }
+}
+
 dependencies {
-    implementation 'com.parousya.saas:sdk:0.1.5'
+    implementation 'com.parousya.saas:sdk:0.2.11'
 }
 ```
 
@@ -177,7 +186,6 @@ PRSCustomer.getInstance().signOut(this, object : PRSCallback<Boolean> {
             })
 ```
 
-
 ## Push Notification
 Please implement the the following method for [push notifications](https://firebase.google.com/docs/cloud-messaging/android/client "push notifications").  Parousya SAAS SDK will only handle push notifications that comes for the SDK ignoring the rest. Any payload received that contains the `parousya` key should be sent to the SDK for handling.
 
@@ -217,14 +225,24 @@ class AppMessagingService : FirebaseMessagingService() {
 }
 ```
 
-## Location permissions
-In order for SDK to work, you need to grant your app a location permission. You can ask your user for the permission by yourself, or use our `permissionsWizard`:
+## Permissions
+In order for SDK to work, you need to grant your app a location/bluetooth permission. You can ask your user for the permission by yourself, or use our `permissionsWizard`:
 ```kotlin
 ParousyaSAASSDK.getInstance().permissionsWizard(activity,
-    Manifest.permission.ACCESS_FINE_LOCATION,
-    Manifest.permission.ACCESS_COARSE_LOCATION,
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                    Manifest.permission.BLUETOOTH_SCAN
+                                } else {
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                },
     onSuccess = {
     },
     onError = {
     })
+```
+### Update sdk location
+```kotlin
+ParousyaSAASSDK.getInstance().latLocation(location)
 ```

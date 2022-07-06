@@ -106,7 +106,7 @@ class AppMessagingService : FirebaseMessagingService() {
                 context.applicationContext,
                 0,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE
             )
 
         val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)

@@ -4,5 +4,7 @@
     <string name="lbl_version">Ver %s (%d)</string>
 
     <string name="prs_scanning_message">Ranging for beacons</string>
+    <string name="prs_scanning_message_foreground_service">[FOREGROUND_SERVICE] Ranging for beacons</string>
+    <string name="prs_stop_foreground_service">Stop</string>
     <string name="prs_scanning_channel">ParousyaSAASSDK All Notifications</string>
 </resources>
